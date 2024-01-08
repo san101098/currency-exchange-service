@@ -1,35 +1,67 @@
-# Hello World Rest API
+# Currency Exchange Micro Service - H2
 
-- Main class com.in28minutes.rest.webservices.restfulwebservices.RestfulWebServicesApplication 
-- You cannot run this app on local as it is configured to run on port 80 - https://serverfault.com/questions/112795/how-to-run-a-server-on-port-80-as-a-normal-user-on-linux. You can run it as a docker container as shown below
+Run com.in28minutes.microservices.currencyconversionservice.CurrencyConversionServiceApplicationH2 as a Java Application.
 
+## Containerization
 
-### Creating Containers
+### Troubleshooting
 
-- mvn clean package
-- docker run --publish 8200:80 in28min/aws-hello-world-rest-api:0.0.1-SNAPSHOT
+- Problem - Caused by: com.spotify.docker.client.shaded.javax.ws.rs.ProcessingException: java.io.IOException: No such file or directory
+- Solution - Check if docker is up and running!
+- Problem - Error creating the Docker image on MacOS - java.io.IOException: Cannot run program “docker-credential-osxkeychain”: error=2, No such file or directory
+- Solution - https://medium.com/@dakshika/error-creating-the-docker-image-on-macos-wso2-enterprise-integrator-tooling-dfb5b537b44e
+
+### Creating Container
+
+- mvn package
+
+### Running Container
+
+#### Basic
+```
+docker container run --publish 8000:8000 in28min/aws-currency-exchange-service-h2:0.0.1-SNAPSHOT
+```
+#### Custom Network
+```
+docker run --publish 8000:8000 --network currency-network --name=currency-exchange-service in28min/aws-currency-exchange-service-h2:0.0.1-SNAPSHOT
+```
+
+Test API 
+- http://localhost:8000/api/currency-exchange-microservice/currency-exchange/from/USD/to/INR
 
 ```
 docker login
-docker push @@REPO@@/aws-hello-world-rest-api:0.0.1-SNAPSHOT
+docker push @@@REPO_NAME@@@/aws-currency-exchange-service-h2:0.0.1-SNAPSHOT
 ```
 
-## Test URLs
+## Resources
 
-- http://localhost:8200/hello-world
-
-```txt
-Hello World
-```
-
-- http://localhost:8200/hello-world-bean
+- http://localhost:8000/api/currency-exchange-microservice/currency-exchange/from/USD/to/INR
 
 ```json
-{"message":"Hello World - Changed"}
+{
+  "id": 10001,
+  "from": "USD",
+  "to": "INR",
+  "conversionMultiple": 65.00,
+  "environmentInfo": "NA"
+}
 ```
 
-- http://localhost:8200/hello-world/path-variable/in28minutes
+## H2 Console
 
-```json
-{"message":"Hello World, in28minutes"}
+- http://localhost:8000/api/currency-exchange-microservice/h2-console
+- Use `jdbc:h2:mem:testdb` as JDBC URL
+
+
+## Tables Created
+```
+create table exchange_value 
+(
+	id bigint not null, 
+	conversion_multiple decimal(19,2), 
+	currency_from varchar(255), 
+	currency_to varchar(255), 
+	primary key (id)
+)
 ```
